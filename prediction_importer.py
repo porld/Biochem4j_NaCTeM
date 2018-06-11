@@ -2,12 +2,16 @@ import json, uuid, sys
 from pprint import pprint
 from neo4j.v1 import GraphDatabase
 
+'''
+This script imports predictions in Sunil's format into the Biochem4j clone
+'''
 
 VERSION = str(sys.argv[1])
 print('Version:',VERSION)
 
 PASSWORD = sys.argv[2]
 
+#This needs changing for deployment
 driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", PASSWORD))
 
 #Load predictions JSON
@@ -17,7 +21,6 @@ with open('reactant_product_data.json') as f:
 #Collect nodes
 papers = []
 chemicals = [] #Collect all the identifiers associated with each chemical
-reactions = {}
 for reaction in data['reaction']:
 
 	#Reactant
