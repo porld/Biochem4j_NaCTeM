@@ -29,7 +29,7 @@ for reaction in data['reaction']:
 	product_id = reaction['product_id']
 	chemicals.append(product_id)
 		
-#Create all the chemical nodes
+#Map chemical nodes between TM and Biochem4j
 chemicals = sorted(list(set(chemicals)))
 for chem in chemicals:
 	identifiers = chem.split('|')
