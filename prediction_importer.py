@@ -11,7 +11,7 @@ PASSWORD = sys.argv[2]
 driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", PASSWORD))
 
 #Load predictions JSON
-with open('predictions/reactant_product_data.json') as f:
+with open('reactant_product_data.json') as f:
     data = json.load(f)
 
 #Collect nodes
@@ -33,6 +33,7 @@ for reaction in data['reaction']:
 	papers.append(paper)
 	
 #Create all the chemical nodes
+chemicals = sorted(list(set(chemicals)))
 print('Found',len(chemicals),'chemicals.')
 for chem in chemicals:
 	print('Making TMChemical node:', chem)
@@ -64,10 +65,9 @@ for reaction in data['reaction']:
 
 	with driver.session() as session:
 		#Link reactant to paper
-		session.run('MATCH (paper:TMpaper {pmid:"' + paper + '"}), (chem:TMchemical {id:"' + reactant_id + '"}) CREATE (paper)-[:mentionsReactant {mention: "' + reactant_mention + '"}]->(chem)')
+		session.run('MATCH (paper:TMpaper {pmid:"' + paper + '", version:"' + VERSION + '"}), (chem:TMchemical {id:"' + reactant_id + '", version:"' + VERSION + '"}) CREATE (paper)-[:mentionsReactant {mention: "' + reactant_mention + '"}]->(chem)')
 		#Link product to paper
-		session.run('MATCH (paper:TMpaper {pmid:"' + paper + '"}), (chem:TMchemical {id:"' + product_id + '"}) CREATE (paper)-[:mentionsProduct {mention: "' + product_mention + '"}]->(chem)')
+		session.run('MATCH (paper:TMpaper {pmid:"' + paper + '", version:"' + VERSION + '"}), (chem:TMchemical {id:"' + product_id + '", version:"' + VERSION + '"}) CREATE (paper)-[:mentionsProduct {mention: "' + product_mention + '"}]->(chem)')
 		#Link reactant and product (both ways)
-		session.run('MATCH (reactant:TMchemical {id:"' + reactant_id + '"}), (product:TMchemical {id:"' + product_id + '"}) CREATE (reactant)-[:TMpair]->(product)')
-		session.run('MATCH (reactant:TMchemical {id:"' + reactant_id + '"}), (product:TMchemical {id:"' + product_id + '"}) CREATE (product)-[:TMpair]->(reactant)')
+		session.run('MATCH (reactant:TMchemical {id:"' + reactant_id + '", version:"' + VERSION + '"}), (product:TMchemical {id:"' + product_id + '", version:"' + VERSION + '"}) CREATE (reactant)-[:TMpair]->(product)')
 	session.close()	
